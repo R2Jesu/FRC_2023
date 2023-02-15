@@ -65,11 +65,12 @@ void Robot::AutonomousInit() {
   } else {
     // Default Auto goes here
   }*/
-  R2Jesu_FullAuto();
+  //R2Jesu_FullAuto();
 
 }
 
 void Robot::AutonomousPeriodic() {
+  R2Jesu_FullAuto();
   //R2Jesu_SwitchAuto();
   /*if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
