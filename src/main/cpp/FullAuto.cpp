@@ -2,41 +2,45 @@
 
 void Robot::R2Jesu_FullAuto()
 {
-    if (limelight_Table->GetNumber("tid", 0) != 8)
+
+    //TODO: What tag are we going to face?
+    if (tid != 8.0 && !(p1done) && !(firstTurn))
     {
-        printf("in turn\n");
+        frc::SmartDashboard::PutNumber("turn",c++);
         alignYaw = ahrs->GetYaw();
         aTurnPidOutput = m_aTurnController.Calculate(alignYaw, 180);
-        //facingError = (fabs(alignYaw) - 180) * (fabs(alignYaw) / alignYaw);
-        //facingCorrection = -.02 * facingError;
-        //R2Jesu_Drive(0.0, 0.0, facingCorrection);
-        frc::SmartDashboard::PutNumber("facingCorrection", aTurnPidOutput);
         R2Jesu_Drive(0.0, 0.0, aTurnPidOutput);
-    }
-    R2Jesu_Drive(0.0, 0.0, 0.0);
-    //while(R2Jesu_Align() == false);
-    //m_DriveEncoder1.SetPosition(0.0);
-    // while (m_DriveEncoder1.GetPosition() < 20.0 && frc::DriverStation::IsAutonomousEnabled())
-    if (R2Jesu_Align() == true && currentDistance > 23.0)
+    } else
     {
-        R2Jesu_Drive(0.0, -0.4, 0.0);
-        printf("driving forward\n");
-    }
-    
-    //while(!(R2Jesu_Align()));
-    /*aprilID = limelight_Table->GetNumber("id", 0.0);
-    m_DriveEncoder1.SetPosition(0.0);
-    if ((aprilID == 8.0) || (aprilID == 3.0))
-    {
-        while (m_DriveEncoder1.GetPosition() < 66.0 && frc::DriverStation::IsAutonomousEnabled())
+        if (tid == 8.0 && !(firstTurn) && !(p1done))
         {
-            R2Jesu_Drive(-0.4, 0.0, 0.0);
+            firstTurn = true;
+            R2Jesu_Drive(0.0, 0.0, 0.0);
         }
-    }  else if ((aprilID == 6.0) || (aprilID == 1.0))
-    {
-        while (m_DriveEncoder1.GetPosition() < 66.0 && frc::DriverStation::IsAutonomousEnabled())
+    }
+
+    if (!(p1done)) {
+
+        //TODO: What tag are we going to face?
+        if (R2Jesu_Align() && currentDistance > 23.0 && tid == 8.0)
         {
-            R2Jesu_Drive(0.4, 0.0, 0.0);
+            R2Jesu_Drive(0.0, -0.4, 0.0);
+            frc::SmartDashboard::PutNumber("forward",b++);
         }
-    }*/
+        else
+        {
+            //TODO: What tag are we going to face?
+            if (currentDistance < 23.0 && tid == 8.0) 
+            {
+                R2Jesu_Drive(0.0, 0.0, 0.0);
+                p1done = true;
+                m_DriveEncoder1.SetPosition(0.0);
+            }
+        }
+    }
+    frc::SmartDashboard::PutNumber("aTurnPidOutput", aTurnPidOutput);
+    frc::SmartDashboard::PutNumber("tid", limelight_Table->GetNumber("tid",0.0));
+    tid = limelight_Table->GetNumber("tid", 0.0);
+    frc::SmartDashboard::PutBoolean("p1done", p1done);
+    frc::SmartDashboard::PutBoolean("firstturn", firstTurn);
 }

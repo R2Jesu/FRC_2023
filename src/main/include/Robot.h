@@ -23,12 +23,11 @@
 #include <chrono>
 #include <thread>
 #include <frc/DriverStation.h>
-//#include <cscore_oo.h>
 #include "AHRS.h"
 #include <cameraserver/CameraServer.h>
-//#include <units/angle.h>
-//#include <units/length.h>
 #include "networktables/NetworkTable.h"
+
+#define PI 3.14159265
 
 class Robot : public frc::TimedRobot {
  public:
@@ -56,7 +55,7 @@ class Robot : public frc::TimedRobot {
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
 
-    // Swerve Drive 
+  // Swerve Drive 
   frc::PS4Controller m_Drivestick{0};
   frc::PS4Controller m_Operatorstick{1};
   
@@ -84,13 +83,14 @@ class Robot : public frc::TimedRobot {
   ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn4{4};
   frc::AnalogInput m_SwerveAnalog4{3};
 
+double encoderConversion = (PI * 4.0) / 42.0;
+
   //Swerve control variables
   double conversion = 360.0/3.3;
   double conversion1 = 360.0/3.235;
   double conversion2 = 360.0/3.265;
   double conversion3 = 360.0/3.275;
   double conversion4 = 360.0/3.275;
-  //double x=0.0, y=0.0, z=0.0;
   double inputAngle = 0.0;
   double r = 0.0;
   double newX = 0.0, newY = 0.0;
@@ -111,39 +111,46 @@ class Robot : public frc::TimedRobot {
   double wSpeed4=0.0;
   double wAngle4=0.0;
   double R = sqrt((LENGTH*LENGTH) + (WIDTH*WIDTH));
-  double Ppid = 0.050;//45;
+  double Ppid = 0.050;
   double Ipid = 0.000;
-  double Dpid = 0.001;//0.0008;//.0005
+  double Dpid = 0.001;
   double pidOutput1 = 0.0;
   double pidOutput2 = 0.0;
   double pidOutput3 = 0.0;
   double pidOutput4 = 0.0;
-  frc2::PIDController m_angleController1{ Ppid , Ipid, Dpid, 20_ms};
-  frc2::PIDController m_angleController2{ Ppid , Ipid, Dpid, 20_ms};
-  frc2::PIDController m_angleController3{ Ppid , Ipid, Dpid, 20_ms};
-  frc2::PIDController m_angleController4{ Ppid , Ipid, Dpid, 20_ms};
+  frc2::PIDController m_angleController1{ Ppid , Ipid, Dpid, 100_ms};
+  frc2::PIDController m_angleController2{ Ppid , Ipid, Dpid, 100_ms};
+  frc2::PIDController m_angleController3{ Ppid , Ipid, Dpid, 100_ms};
+  frc2::PIDController m_angleController4{ Ppid , Ipid, Dpid, 100_ms};
   double fullSpeed = .3;
   double turnSpeed = .2;
   double speedChoice;
 
   //Charging Station
-  double switchPpid = -0.010;//maura we added a zero 0.025
+  double switchPpid = -0.015;
   double switchIpid = 0.0;
-  double switchDpid = 0.0;
+  double switchDpid = 0.001;
   double switchPidOutput = 0.0;
-  frc2::PIDController m_switchController{ switchPpid, switchIpid, switchDpid, 50_ms};
+  frc2::PIDController m_switchController{switchPpid, switchIpid, switchDpid, 50_ms};
 
   //Autonomous Turn
   double aTurnPpid = 0.02;
   double aTurnIpid = 0.0;
-  double aTurnDpid = 0.1;
+  double aTurnDpid = 0.001;
   double aTurnPidOutput = 0.0;
   frc2::PIDController m_aTurnController{ aTurnPpid, aTurnIpid, aTurnDpid, 20_ms};
 
+  //Autonomous Turn 2
+  double aTurn2Ppid = 0.02;
+  double aTurn2Ipid = 0.001;
+  double aTurn2Dpid = 0.001;
+  double aTurn2PidOutput = 0.0;
+  frc2::PIDController m_aTurn2Controller{ aTurn2Ppid, aTurn2Ipid, aTurn2Dpid, 20_ms};
+
   //April Tag Align
-  double alignPpid = 0.02;
+  double alignPpid = 0.045;
   double alignIpid = 0.0;
-  double alignDpid = 0.1;
+  double alignDpid = 0.006;
   double alignPidOutput = 0.0;
   frc2::PIDController m_alignController{ alignPpid, alignIpid, alignDpid, 20_ms};
 
@@ -160,11 +167,23 @@ class Robot : public frc::TimedRobot {
   bool hasRunDistance1 = false;
   bool hasRunDistance2 = false;
   bool hasRunAngle1 = false;
+  bool p1done = false;
   double aprilID = 0.0;
 
   double currentDistance;
-  #define PI 3.14159265
+  double tid;
 
+  int c=0;
+  int v=0;
+  int b=0;
+  int n=0;
+  int k=0;
+  int j=0;
+  int i=0;
+
+  bool yDisplaceDone = false;
+  bool initialBack = false;
+  bool firstTurn = false;
   std::shared_ptr<nt::NetworkTable> limelight_Table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
 };

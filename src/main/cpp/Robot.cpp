@@ -12,13 +12,14 @@ void Robot::RobotInit()
 {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
-  frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+  //frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   ahrs = new AHRS(frc::SPI::Port::kMXP);
   m_angleController1.EnableContinuousInput(0.00, 360.00);
   m_angleController2.EnableContinuousInput(0.00, 360.00);
   m_angleController3.EnableContinuousInput(0.00, 360.00);
   m_angleController4.EnableContinuousInput(0.00, 360.00);
-
+  m_DriveEncoder1.SetPosition(0.0);
+  m_DriveEncoder1.SetPositionConversionFactor(1.795);
 }
 
 /**
@@ -31,7 +32,11 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 {
+  frc::SmartDashboard::PutNumber("encoder x", m_DriveEncoder1.GetPosition());
   R2Jesu_Limelight();
+  frc::SmartDashboard::PutNumber("XDisplacement", ahrs->GetDisplacementX());
+  frc::SmartDashboard::PutNumber("YDisplacement", ahrs->GetDisplacementY());
+  frc::SmartDashboard::PutNumber("ZDisplacement", ahrs->GetDisplacementZ());
 }
 
 /**
@@ -47,10 +52,6 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit() {
   ahrs->ResetDisplacement();
-  //m_autoSelected = m_chooser.GetSelected();
-  // m_autoSelected = SmartDashboard::GetString("Auto Selector",
-  //     kAutoNameDefault);
-  fmt::print("Auto selected: {}\n", m_autoSelected);
   m_DriveEncoder1.SetPosition(0.0);
   m_DriveEncoder2.SetPosition(0.0);
   m_DriveEncoder3.SetPosition(0.0);
@@ -59,36 +60,42 @@ void Robot::AutonomousInit() {
   m_SwerveDrive2.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   m_SwerveDrive3.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
   m_SwerveDrive4.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-
-  /*if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }*/
-  //R2Jesu_FullAuto();
-
+  p1done = false;
+  hasRun = false;
+  yDisplaceDone = false;
+  c=0;
+  v=0;
+  b=0;
+  n=0;
+  k=0;
+  initialBack = false;
+  firstTurn = false;
 }
 
 void Robot::AutonomousPeriodic() {
-  R2Jesu_FullAuto();
-  //R2Jesu_SwitchAuto();
-  /*if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }*/
+  
+  if(!p1done)
+  {
+    R2Jesu_FullAuto();
+  }
+  if (p1done)
+  {
+    R2Jesu_SwitchAuto();
+  }
+
 }
 
 void Robot::TeleopInit() 
 {
+  m_DriveEncoder1.SetPosition(0.0);
   m_SwerveDrive1.Set(0.0);
-    m_SwerveDrive2.Set(0.0);
-    m_SwerveDrive3.Set(0.0);
-    m_SwerveDrive4.Set(0.0);
-    m_SwerveTurn1.Set(0.0);
-    m_SwerveTurn2.Set(0.0);
-    m_SwerveTurn3.Set(0.0);
-    m_SwerveTurn4.Set(0.0);
+  m_SwerveDrive2.Set(0.0);
+  m_SwerveDrive3.Set(0.0);
+  m_SwerveDrive4.Set(0.0);
+  m_SwerveTurn1.Set(0.0);
+  m_SwerveTurn2.Set(0.0);
+  m_SwerveTurn3.Set(0.0);
+  m_SwerveTurn4.Set(0.0);
   m_SwerveDrive1.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   m_SwerveDrive2.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   m_SwerveDrive3.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
@@ -98,6 +105,7 @@ void Robot::TeleopInit()
 void Robot::TeleopPeriodic() 
 {
   R2Jesu_Drive(m_Drivestick.GetR2Axis(), m_Drivestick.GetRightY() * -1.0, m_Drivestick.GetLeftX());
+  // triangle is y
   if (m_Drivestick.GetTriangleButton())
   {
     R2Jesu_Align();
