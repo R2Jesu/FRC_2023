@@ -83,6 +83,8 @@ class Robot : public frc::TimedRobot {
   ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn4{4};
   frc::AnalogInput m_SwerveAnalog4{3};
 
+ frc::AnalogInput pressureDude{4};
+
 double encoderConversion = (PI * 4.0) / 42.0;
 
   //Swerve control variables
@@ -185,5 +187,7 @@ double encoderConversion = (PI * 4.0) / 42.0;
   bool initialBack = false;
   bool firstTurn = false;
   std::shared_ptr<nt::NetworkTable> limelight_Table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+
+  
 
 };

@@ -37,6 +37,8 @@ void Robot::RobotPeriodic()
   frc::SmartDashboard::PutNumber("XDisplacement", ahrs->GetDisplacementX());
   frc::SmartDashboard::PutNumber("YDisplacement", ahrs->GetDisplacementY());
   frc::SmartDashboard::PutNumber("ZDisplacement", ahrs->GetDisplacementZ());
+  frc::SmartDashboard::PutNumber("Pressure voltage", pressureDude.GetVoltage());
+  frc::SmartDashboard::PutNumber("Pressure value", pressureDude.GetValue());
 }
 
 /**
