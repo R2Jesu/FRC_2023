@@ -18,16 +18,17 @@ bool Robot::R2Jesu_Align()
         }
         frc::SmartDashboard::PutNumber("aTurn2PidOutput", aTurn2PidOutput);
         localAlign = false;
+        R2Jesu_Drive(0.0, 0.0, aTurn2PidOutput);
     }
-    if ((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5))
+    if (((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5)) && !((ahrs->GetYaw() > -177.0) && (ahrs->GetYaw() < 177.0)))
     {
         frc::SmartDashboard::PutNumber("Align April",i++);
         aprilError = limelight_Table->GetNumber("tx",0.0);
         aprilCorrection = m_alignController.Calculate(aprilError, 0.0);
         frc::SmartDashboard::PutNumber("aprilCorrection", aprilCorrection);
         localAlign = false;
+        R2Jesu_Drive(aprilCorrection, 0.0, 0.0);
     }
-    R2Jesu_Drive(aprilCorrection, 0.0, aTurn2PidOutput);
     frc::SmartDashboard::PutNumber("tx", limelight_Table->GetNumber("tx",0.0));
     frc::SmartDashboard::PutBoolean("local Align", localAlign);
     return localAlign;

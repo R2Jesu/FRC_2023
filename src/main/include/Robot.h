@@ -26,6 +26,10 @@
 #include "AHRS.h"
 #include <cameraserver/CameraServer.h>
 #include "networktables/NetworkTable.h"
+#include <frc/Joystick.h>
+#include <frc/DutyCycleEncoder.h>
+#include <frc/PowerDistribution.h>
+#include <frc/Encoder.h>
 
 #define PI 3.14159265
 
@@ -50,15 +54,36 @@ class Robot : public frc::TimedRobot {
   void R2Jesu_Limelight(void);
   bool R2Jesu_Align(void);
   void R2Jesu_FullAuto(void);
+  void R2Jesu_Grid(void);
+  void R2Jesu_Arm(void);
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
 
+  frc::Encoder armEnc{7, 8, false, frc::Encoder::k4X};
+  rev::CANSparkMax armMotor{0, rev::CANSparkMax::MotorType::kBrushless};
+  rev::SparkMaxRelativeEncoder armMotorEnc = armMotor.GetEncoder();
+  double armPpid = 1.25;
+  double armIpid = 0.0;
+  double armDpid = 0.5;
+  double armPidOutput = 0.0;
+  double armStops[4] = { 0.77, 0.64, 0.35, 0.26 };
+  int armX;
+  double armY;
+  bool LAxisAllowed=true;
+  frc2::PIDController m_armController{ armPpid, armIpid, armDpid, 50_ms};
+  frc::DutyCycleEncoder m_encArm{9};
+  frc::PowerDistribution mypdp;
+
+
   // Swerve Drive 
   frc::PS4Controller m_Drivestick{0};
   frc::PS4Controller m_Operatorstick{1};
-  
+
+  // Grid joystick
+  frc::Joystick gridPad{2};
+
   //swerve 1 front left
   rev::CANSparkMax m_SwerveDrive1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::SparkMaxRelativeEncoder m_DriveEncoder1 = m_SwerveDrive1.GetEncoder();
@@ -143,18 +168,18 @@ double encoderConversion = (PI * 4.0) / 42.0;
   frc2::PIDController m_aTurnController{ aTurnPpid, aTurnIpid, aTurnDpid, 20_ms};
 
   //Autonomous Turn 2
-  double aTurn2Ppid = 0.02;
-  double aTurn2Ipid = 0.001;
-  double aTurn2Dpid = 0.001;
+  double aTurn2Ppid = 0.042;
+  double aTurn2Ipid = 0.00;
+  double aTurn2Dpid = 0.00;
   double aTurn2PidOutput = 0.0;
   frc2::PIDController m_aTurn2Controller{ aTurn2Ppid, aTurn2Ipid, aTurn2Dpid, 20_ms};
 
   //April Tag Align
-  double alignPpid = 0.045;
-  double alignIpid = 0.0;
-  double alignDpid = 0.006;
+  double alignPpid = 0.047;
+  double alignIpid = 0.001;
+  double alignDpid = 0.0148;
   double alignPidOutput = 0.0;
-  frc2::PIDController m_alignController{ alignPpid, alignIpid, alignDpid, 20_ms};
+  frc2::PIDController m_alignController{ alignPpid, alignIpid, alignDpid, 50_ms};
 
   //NavX
   AHRS *ahrs;
@@ -188,6 +213,12 @@ double encoderConversion = (PI * 4.0) / 42.0;
   bool firstTurn = false;
   std::shared_ptr<nt::NetworkTable> limelight_Table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
-  
+  bool alignReset = false;
+
+  double gridPpid = 0.02;
+  double gridIpid = 0.0;
+  double gridDpid = 0.001;
+  double gridPidOutput = 0.0;
+  frc2::PIDController m_gridController{ gridPpid, gridIpid, gridDpid, 20_ms};
 
 };

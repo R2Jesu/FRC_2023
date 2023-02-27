@@ -20,6 +20,8 @@ void Robot::RobotInit()
   m_angleController4.EnableContinuousInput(0.00, 360.00);
   m_DriveEncoder1.SetPosition(0.0);
   m_DriveEncoder1.SetPositionConversionFactor(1.795);
+  armMotor.Set(0.0);
+  armX = 0;
 }
 
 /**
@@ -70,6 +72,8 @@ void Robot::AutonomousInit() {
   b=0;
   n=0;
   k=0;
+  j=0;
+  i=0;
   initialBack = false;
   firstTurn = false;
 }
@@ -102,16 +106,44 @@ void Robot::TeleopInit()
   m_SwerveDrive2.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   m_SwerveDrive3.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
   m_SwerveDrive4.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+  c=0;
+  v=0;
+  b=0;
+  n=0;
+  k=0;
+  j=0;
+  i=0;
 }
 
 void Robot::TeleopPeriodic() 
 {
+  if (m_Drivestick.GetCircleButton()) {
+  c=0;
+  v=0;
+  b=0;
+  n=0;
+  k=0;
+  j=0;
+  i=0;
+  }
+  frc::SmartDashboard::PutNumber("Encoder 1", m_DriveEncoder1.GetPosition());
+  frc::SmartDashboard::PutNumber("Grid pid output", gridPidOutput);
   R2Jesu_Drive(m_Drivestick.GetR2Axis(), m_Drivestick.GetRightY() * -1.0, m_Drivestick.GetLeftX());
   // triangle is y
   if (m_Drivestick.GetTriangleButton())
   {
-    R2Jesu_Align();
+    alignReset = R2Jesu_Align();
   }
+  if (alignReset)
+  {
+    m_DriveEncoder1.SetPosition(0.0);
+    alignReset = false;
+  }
+  if ((fabs(m_Drivestick.GetRightX()) < 0.1) && (fabs(m_Drivestick.GetRightY()) < 0.1) && (fabs(m_Drivestick.GetLeftX()) < 0.1))
+  {
+    R2Jesu_Grid();
+  }
+  R2Jesu_Arm();
 }
 
 void Robot::DisabledInit() {}
