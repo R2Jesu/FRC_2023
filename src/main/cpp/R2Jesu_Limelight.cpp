@@ -14,7 +14,7 @@ void Robot::R2Jesu_Limelight()
  
 
    //(Target height - camera height) / tan((camera angle + target offset angle from limelight)) * (PI / 180)))
-   double ourDist = (((double)18 - (double)25.5) / tan(((double)-5.00 + targetOffsetAngle_Vertical) * (PI / 180)));
+   double ourDist = (((double)18.0 - (double)13.5) / (tan(((double)0.86 + targetOffsetAngle_Vertical) * (PI / 180.00))));
    currentDistance = ourDist;
    if (targetOffsetAngle_Vertical == 0.0){
       currentDistance = 0.0;

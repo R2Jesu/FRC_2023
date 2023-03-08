@@ -52,30 +52,58 @@ class Robot : public frc::TimedRobot {
   void R2Jesu_Drive(double x, double y, double z);
   void R2Jesu_SwitchAuto(void);
   void R2Jesu_Limelight(void);
-  bool R2Jesu_Align(void);
+  bool R2Jesu_Align(double targetYaw);
   void R2Jesu_FullAuto(void);
   void R2Jesu_Grid(void);
   void R2Jesu_Arm(void);
-  frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
-  std::string m_autoSelected;
+  void R2Jesu_Chewy(void);
+  frc::SendableChooser<bool> m_chargeChoice;
+  const bool kAutoRun = true;
+  const bool kAutoNoRun = false;
+  bool m_chargeSelected;
+  frc::SendableChooser<double> m_tagChoice;
+  const double april1 = 1.0;
+  const double april2 = 2.0;
+  const double april3 = 3.0;
+  const double april6 = 6.0;
+  const double april7 = 7.0;
+  const double april8 = 8.0;
+  double m_aprilSelected;
+  frc::SendableChooser<double> m_gridChoice;
+  const double grid1 = 1.0;
+  const double grid2 = 2.0;
+  const double grid3 = 3.0;
+  const double grid4 = 4.0;
+  const double grid5 = 5.0;
+  const double grid6 = 6.0;
+  double m_gridSelected;
 
-  frc::Encoder armEnc{7, 8, false, frc::Encoder::k4X};
-  rev::CANSparkMax armMotor{0, rev::CANSparkMax::MotorType::kBrushless};
+
+
+
+  // Arm
+  frc::DutyCycleEncoder m_encArm{0};
+  rev::CANSparkMax armMotor{9, rev::CANSparkMax::MotorType::kBrushless};
   rev::SparkMaxRelativeEncoder armMotorEnc = armMotor.GetEncoder();
-  double armPpid = 1.25;
-  double armIpid = 0.0;
-  double armDpid = 0.5;
+  double armPpid = 5.0; //1.5
+  double armIpid = 0.00; //0
+  double armDpid = 0.0; //.5
   double armPidOutput = 0.0;
-  double armStops[4] = { 0.77, 0.64, 0.35, 0.26 };
+  double armStops[5] = { 0.91, 0.88, 0.35, 0.305, 0.115};
   int armX;
   double armY;
-  bool LAxisAllowed=true;
-  frc2::PIDController m_armController{ armPpid, armIpid, armDpid, 50_ms};
-  frc::DutyCycleEncoder m_encArm{9};
+  double armSetPoint = 0.0;
+  bool runToSet=true;
+  frc2::PIDController m_armController{ armPpid, armIpid, armDpid, 20_ms};
   frc::PowerDistribution mypdp;
-
+  double upPpid = 8.0;
+  double upIpid = 0.0;//0.3;
+  double upDpid = 0.0; //0.5
+  double downPpid = 1.4;//1.3;
+  double downIpid = 0.0;//0.27;
+  double downDpid = 0.0; //0.55
+  // Chewy
+    rev::CANSparkMax chewyMotor{10, rev::CANSparkMax::MotorType::kBrushed};
 
   // Swerve Drive 
   frc::PS4Controller m_Drivestick{0};
@@ -99,21 +127,25 @@ class Robot : public frc::TimedRobot {
   //swerve 3
   rev::CANSparkMax m_SwerveDrive3{7, rev::CANSparkMax::MotorType::kBrushless};
   rev::SparkMaxRelativeEncoder m_DriveEncoder3 = m_SwerveDrive3.GetEncoder();
-  ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn3{3};
+  //ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn3{3};
+  ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_SwerveTurn3{3};
   frc::AnalogInput m_SwerveAnalog3{2};
   
   //swerve 4
   rev::CANSparkMax m_SwerveDrive4{8, rev::CANSparkMax::MotorType::kBrushless};
   rev::SparkMaxRelativeEncoder m_DriveEncoder4 = m_SwerveDrive4.GetEncoder();
-  ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn4{4};
+  //ctre::phoenix::motorcontrol::can::WPI_VictorSPX m_SwerveTurn4{4};
+  ctre::phoenix::motorcontrol::can::WPI_TalonSRX m_SwerveTurn4{4};
   frc::AnalogInput m_SwerveAnalog4{3};
 
  frc::AnalogInput pressureDude{4};
 
+ frc::AnalogInput stringDude{5};
+
 double encoderConversion = (PI * 4.0) / 42.0;
 
   //Swerve control variables
-  double conversion = 360.0/3.3;
+  double conversion = 360.0/5.0;
   double conversion1 = 360.0/3.235;
   double conversion2 = 360.0/3.265;
   double conversion3 = 360.0/3.275;
@@ -123,8 +155,8 @@ double encoderConversion = (PI * 4.0) / 42.0;
   double newX = 0.0, newY = 0.0;
   double fieldOrientedAngle = 0.0;
   double correctionPID;
-  double LENGTH = 17.375;
-  double WIDTH = 21.25;
+  double LENGTH = 20.0;
+  double WIDTH = 17.5;
   double A=0.0;
 	double B=0.0;
 	double C=0.0;
@@ -149,8 +181,8 @@ double encoderConversion = (PI * 4.0) / 42.0;
   frc2::PIDController m_angleController2{ Ppid , Ipid, Dpid, 100_ms};
   frc2::PIDController m_angleController3{ Ppid , Ipid, Dpid, 100_ms};
   frc2::PIDController m_angleController4{ Ppid , Ipid, Dpid, 100_ms};
-  double fullSpeed = .3;
-  double turnSpeed = .2;
+  double fullSpeed;
+  double turnSpeed = .15;
   double speedChoice;
 
   //Charging Station
@@ -175,9 +207,9 @@ double encoderConversion = (PI * 4.0) / 42.0;
   frc2::PIDController m_aTurn2Controller{ aTurn2Ppid, aTurn2Ipid, aTurn2Dpid, 20_ms};
 
   //April Tag Align
-  double alignPpid = 0.047;
-  double alignIpid = 0.001;
-  double alignDpid = 0.0148;
+  double alignPpid = 0.047; //.047
+  double alignIpid = 0.005; // .001
+  double alignDpid = 0.0148; // .0148
   double alignPidOutput = 0.0;
   frc2::PIDController m_alignController{ alignPpid, alignIpid, alignDpid, 50_ms};
 
@@ -200,25 +232,34 @@ double encoderConversion = (PI * 4.0) / 42.0;
   double currentDistance;
   double tid;
 
-  int c=0;
-  int v=0;
-  int b=0;
-  int n=0;
-  int k=0;
-  int j=0;
-  int i=0;
-
   bool yDisplaceDone = false;
   bool initialBack = false;
+  double initialBackDistance = 0.0;
+  bool turnt = false;
   bool firstTurn = false;
   std::shared_ptr<nt::NetworkTable> limelight_Table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
   bool alignReset = false;
 
-  double gridPpid = 0.02;
+  double gridPpid = 0.015;
   double gridIpid = 0.0;
   double gridDpid = 0.001;
   double gridPidOutput = 0.0;
-  frc2::PIDController m_gridController{ gridPpid, gridIpid, gridDpid, 20_ms};
+  frc2::PIDController m_gridController{gridPpid, gridIpid, gridDpid, 20_ms};
 
+  bool fullAuto1 = false;
+  bool fullAuto2 = false;
+  bool fullAuto2_5 = false;
+  bool fullAuto3 = false;
+  bool fullAuto4 = false;
+  bool fullAuto5 = false;
+  bool fullAuto6 = false;
+  double autoAprilDistance = 0.0;
+  double autoArmSet = 0.0;
+  double autoOffset = 0.0;
+
+  bool wheelAngleCheck = false;
+
+  //camera
+  cs::UsbCamera drvCamera;
 };
