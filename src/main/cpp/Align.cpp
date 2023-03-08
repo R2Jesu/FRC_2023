@@ -1,27 +1,40 @@
 #include "Robot.h"
 bool localAlign;
 
-bool Robot::R2Jesu_Align()
+bool Robot::R2Jesu_Align(double targetYaw)
 {
-    printf("In align\n");
     localAlign = true;
-    if ((ahrs->GetYaw() > -178.5) && (ahrs->GetYaw() < 178.5))
+    aprilCorrection = 0.0;
+    aTurn2PidOutput = 0.0;
+    //if ((ahrs->GetYaw() > -177.0) && (ahrs->GetYaw() < 177.0))
+    frc::SmartDashboard::PutNumber("targetYaw", targetYaw);
+    if (abs(ahrs->GetYaw()) < (targetYaw - 3) || abs(ahrs->GetYaw()) > (targetYaw + 3))
     {
         alignYaw = ahrs->GetYaw();
-        facingError = (fabs(alignYaw) - 180) * (fabs(alignYaw) / alignYaw);
-        facingCorrection = -.02 * facingError;
-        //R2Jesu_Drive(0.0, 0.0, facingCorrection);
-        frc::SmartDashboard::PutNumber("facingCorrection", facingCorrection);
+        aTurn2PidOutput = m_aTurn2Controller.Calculate(abs(alignYaw), targetYaw);
+        if (alignYaw < 0)
+        {
+            aTurn2PidOutput = aTurn2PidOutput * -1.0;
+        }
         localAlign = false;
+        R2Jesu_Drive(0.0, 0.0, aTurn2PidOutput);
+        frc::SmartDashboard::PutNumber("aTurn2PidOutput", aTurn2PidOutput);
     }
-    if ((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5))
+    //if (((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5)) && !((ahrs->GetYaw() > -177.0) && (ahrs->GetYaw() < 177.0)))
+    if (((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5)) && !(abs(ahrs->GetYaw()) < (targetYaw - 3) || abs(ahrs->GetYaw()) > (targetYaw + 3)))
     {
         aprilError = limelight_Table->GetNumber("tx",0.0);
-        aprilCorrection = -.03 * aprilError;
-        //R2Jesu_Drive(aprilCorrection, 0.0, 0.0);
-        frc::SmartDashboard::PutNumber("aprilCorrection", aprilCorrection);
+        aprilCorrection = m_alignController.Calculate(aprilError, 0.0);
         localAlign = false;
+        if (targetYaw == 0.0) {
+            R2Jesu_Drive((aprilCorrection * -1.0), 0.0, 0.0);
+        }
+        else {
+            R2Jesu_Drive(aprilCorrection, 0.0, 0.0);
+        }
+        frc::SmartDashboard::PutNumber("aprilCorrection", aprilCorrection);
     }
-    R2Jesu_Drive(aprilCorrection, 0.0, facingCorrection);
+    frc::SmartDashboard::PutBoolean("local Align", localAlign);
     return localAlign;
+    
 }

@@ -13,13 +13,6 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     frc::SmartDashboard::PutNumber("Wheel 4 Voltage", m_SwerveAnalog4.GetVoltage());
     frc::SmartDashboard::PutNumber("Wheel 4 Angle", (m_SwerveAnalog4.GetVoltage()*conversion4));
 
-    //x = m_Drivestick.GetR2Axis();
-    //y = m_Drivestick.GetRightY() * -1.0;
-    //z = m_Drivestick.GetLeftX();
-    
-   
-
-
     if (fabs(x) < 0.1)
     {
         x = 0.0;
@@ -42,10 +35,6 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     newX = r * (cos(fieldOrientedAngle * M_PI/180.0));
     newY = r * (sin(fieldOrientedAngle * M_PI/180.0));
 
-    //frc::SmartDashboard::PutNumber("x", x);
-    //frc::SmartDashboard::PutNumber("y", y);
-    //frc::SmartDashboard::PutNumber("z", z);
-
     A = newY - z*(LENGTH/R);
 	B = newY + z*(LENGTH/R);
 	C = newX - z*(WIDTH/R);
@@ -63,7 +52,7 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     {
         wAngle1 = wAngle1 + 360.0;
     }
-    if (wAngle1 >= 185.0)
+    if ((wAngle1 >= 180.0) /*&& !((fieldOrientedAngle > 179.0) && (fieldOrientedAngle < 181.0)) && !((fieldOrientedAngle < 1.0) || (fieldOrientedAngle > 359.0))*/)
     {
         wAngle1 = wAngle1 - 180.0;
         wSpeed1 = -1.0 * wSpeed1;
@@ -75,7 +64,7 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     {
         wAngle2 = wAngle2 + 360.0;
     }
-    if (wAngle2 >= 185.0)
+    if ((wAngle2 >= 180.0) /*&& !((fieldOrientedAngle > 179.0) && (fieldOrientedAngle < 181.0)) && !((fieldOrientedAngle < 1.0) || (fieldOrientedAngle > 359.0))*/)
     {
         wAngle2 = wAngle2 - 180.0;
         wSpeed2 = -1.0 * wSpeed2;
@@ -87,7 +76,8 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     {
         wAngle3 = wAngle3 + 360.0;
     }
-    if (wAngle3 >= 185.0)
+    if ((wAngle3 >= 180.0) /*&& !((fieldOrientedAngle > 179.0) && (fieldOrientedAngle < 181.0)) 
+    && !((fieldOrientedAngle < 1.0) || (fieldOrientedAngle > 359.0))*/)
     {
         wAngle3 = wAngle3 - 180.0;
         wSpeed3 = -1.0 * wSpeed3;
@@ -99,7 +89,8 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
     {
         wAngle4 = wAngle4 + 360.0;
     }
-    if (wAngle4 >= 185.0)
+    if ((wAngle4 >= 180.0) /*&& !((fieldOrientedAngle > 179.0) && (fieldOrientedAngle < 181.0)) 
+    && !((fieldOrientedAngle < 1.0) || (fieldOrientedAngle > 359.0))*/)
     {
         wAngle4 = wAngle4 - 180.0;
         wSpeed4 = -1.0 * wSpeed4;
@@ -124,7 +115,6 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
         pidOutput4 = m_angleController4.Calculate((m_SwerveAnalog4.GetVoltage() * conversion4), wAngle4);
         m_SwerveTurn4.Set(pidOutput4);
     }
-        //Kept running because we never stopped it
     else
     {
         m_SwerveDrive1.Set(0.0);
@@ -151,16 +141,5 @@ void Robot::R2Jesu_Drive(double x, double y, double z)
         pidOutput4 = m_angleController4.Calculate((m_SwerveAnalog4.GetVoltage() * conversion4), 135.0);
         m_SwerveTurn4.Set(pidOutput4);
     }
-    /*
-    frc::SmartDashboard::PutNumber("Wheel 1",(m_SwerveAnalog1.GetVoltage() * conversion));
-    frc::SmartDashboard::PutNumber("Wheel 2",(m_SwerveAnalog2.GetVoltage() * conversion));
-    frc::SmartDashboard::PutNumber("Wheel 3",(m_SwerveAnalog3.GetVoltage() * conversion));
-    frc::SmartDashboard::PutNumber("Wheel 4",(m_SwerveAnalog4.GetVoltage() * conversion));
-
-    frc::SmartDashboard::PutNumber("Desired Angle 1",wAngle1);
-    frc::SmartDashboard::PutNumber("Desired Angle 2",wAngle2);
-    frc::SmartDashboard::PutNumber("Desired Angle 3",wAngle3);
-    frc::SmartDashboard::PutNumber("Desired Angle 4",wAngle4);
-    */
 
 }
