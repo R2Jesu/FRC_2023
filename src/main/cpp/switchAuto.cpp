@@ -207,19 +207,19 @@ void Robot::R2Jesu_SwitchAuto(void)
     {
         balanceDirection = 270.0;
         switchPidOutput = m_switchController.Calculate((ahrs->GetPitch()), 0.0);
-        m_SwerveDrive1.Set(switchPidOutput);
+        m_SwerveDrive1.Set(switchPidOutput * 0.68);
         pidOutput1 = m_angleController1.Calculate((m_SwerveAnalog1.GetVoltage() * conversion1), balanceDirection);
         m_SwerveTurn1.Set(pidOutput1);
 
-        m_SwerveDrive2.Set(switchPidOutput);
+        m_SwerveDrive2.Set(switchPidOutput * 0.68);
         pidOutput2 = m_angleController2.Calculate((m_SwerveAnalog2.GetVoltage() * conversion2), balanceDirection);
         m_SwerveTurn2.Set(pidOutput2);
 
-        m_SwerveDrive3.Set(switchPidOutput);
+        m_SwerveDrive3.Set(switchPidOutput * 0.68);
         pidOutput3 = m_angleController3.Calculate((m_SwerveAnalog3.GetVoltage() * conversion3), balanceDirection);
         m_SwerveTurn3.Set(pidOutput3);
 
-        m_SwerveDrive4.Set(switchPidOutput);
+        m_SwerveDrive4.Set(switchPidOutput * 0.68);
         pidOutput4 = m_angleController4.Calculate((m_SwerveAnalog4.GetVoltage() * conversion4), balanceDirection);
         m_SwerveTurn4.Set(pidOutput4);
 

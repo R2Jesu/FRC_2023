@@ -186,7 +186,7 @@ double encoderConversion = (PI * 4.0) / 42.0;
   double speedChoice;
 
   //Charging Station
-  double switchPpid = -0.015;
+  double switchPpid = -0.012;
   double switchIpid = 0.0;
   double switchDpid = 0.001;
   double switchPidOutput = 0.0;
@@ -207,7 +207,7 @@ double encoderConversion = (PI * 4.0) / 42.0;
   frc2::PIDController m_aTurn2Controller{ aTurn2Ppid, aTurn2Ipid, aTurn2Dpid, 20_ms};
 
   //April Tag Align
-  double alignPpid = 0.047; //.047
+  double alignPpid = 0.07; //.047
   double alignIpid = 0.005; // .001
   double alignDpid = 0.0148; // .0148
   double alignPidOutput = 0.0;
@@ -262,4 +262,8 @@ double encoderConversion = (PI * 4.0) / 42.0;
 
   //camera
   cs::UsbCamera drvCamera;
+
+  double autoTurnFactor = 0.6;
+
+  bool localAlign = false;
 };

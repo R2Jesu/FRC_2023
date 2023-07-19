@@ -9,7 +9,7 @@ void Robot::R2Jesu_FullAuto()
     if ((m_DriveEncoder1.GetPosition() < 40) && !((m_aprilSelected == 2.0) || 
     (m_aprilSelected == 7.0)) && (fullAuto1 == false))
     {
-        R2Jesu_Drive(0.0, 1.0, 0.0);
+        R2Jesu_Drive(0.0, 0.8, 0.0);
     }
     else
     {
@@ -21,7 +21,7 @@ void Robot::R2Jesu_FullAuto()
     {
         alignYaw = ahrs->GetYaw();
         aTurnPidOutput = m_aTurnController.Calculate(alignYaw, 180);
-        R2Jesu_Drive(0.0, 0.0, aTurnPidOutput);
+        R2Jesu_Drive(0.0, 0.0, (aTurnPidOutput * autoTurnFactor));
     } else
     {
         if ((tid == m_aprilSelected) && fullAuto1 && (fullAuto2 == false))
@@ -82,11 +82,19 @@ void Robot::R2Jesu_FullAuto()
             wheelAngleCheck = false;
         } else
         {
+            m_SwerveDrive1.Set(0.0);
+            m_SwerveTurn1.Set(0.0);
+            m_SwerveDrive2.Set(0.0);
+            m_SwerveTurn2.Set(0.0);
+            m_SwerveDrive3.Set(0.0);
+            m_SwerveTurn3.Set(0.0);
+            m_SwerveDrive4.Set(0.0);
+            m_SwerveTurn4.Set(0.0);
             wheelAngleCheck = true;
         }
-        if (((m_gridSelected == 1.0) || (m_gridSelected == 4.0)) && (m_DriveEncoder1.GetPosition() < 34.5) && wheelAngleCheck)
+        if (((m_gridSelected == 1.0) || (m_gridSelected == 4.0)) && (m_DriveEncoder1.GetPosition() < 27.5) && wheelAngleCheck)
         {
-        gridPidOutput = m_gridController.Calculate(m_DriveEncoder1.GetPosition(), 36.5);
+        gridPidOutput = m_gridController.Calculate(m_DriveEncoder1.GetPosition(), 29.5);
         m_SwerveDrive1.Set(gridPidOutput);
         pidOutput1 = m_angleController1.Calculate((m_SwerveAnalog1.GetVoltage() * conversion1), 0.0);
         m_SwerveTurn1.Set(pidOutput1);
@@ -104,7 +112,7 @@ void Robot::R2Jesu_FullAuto()
         m_SwerveTurn4.Set(pidOutput4);
         } else
         {
-            if((m_DriveEncoder1.GetPosition() >= 34.5) && fullAuto3 && (fullAuto4 == false))
+            if((m_DriveEncoder1.GetPosition() >= 27.5) && fullAuto3 && (fullAuto4 == false))
             {
                 m_SwerveDrive1.Set(0.0);
                 m_SwerveDrive2.Set(0.0);
@@ -115,9 +123,9 @@ void Robot::R2Jesu_FullAuto()
             }
         }
 
-        if (((m_gridSelected == 3.0) || (m_gridSelected == 6.0)) && (m_DriveEncoder1.GetPosition() > -34.5) && wheelAngleCheck)
+        if (((m_gridSelected == 3.0) || (m_gridSelected == 6.0)) && (m_DriveEncoder1.GetPosition() > -27.5) && wheelAngleCheck)
         {
-            gridPidOutput = m_gridController.Calculate(m_DriveEncoder1.GetPosition(), -36.5);
+            gridPidOutput = m_gridController.Calculate(m_DriveEncoder1.GetPosition(), -29.5);
             m_SwerveDrive1.Set(gridPidOutput);
             pidOutput1 = m_angleController1.Calculate((m_SwerveAnalog1.GetVoltage() * conversion1), 0.0);
             m_SwerveTurn1.Set(pidOutput1);
@@ -135,7 +143,7 @@ void Robot::R2Jesu_FullAuto()
             m_SwerveTurn4.Set(pidOutput4);
         } else
         {
-            if((m_DriveEncoder1.GetPosition() <= -34.5) && fullAuto3 && (fullAuto4 == false))
+            if((m_DriveEncoder1.GetPosition() <= -27.5) && fullAuto3 && (fullAuto4 == false))
             {
                 m_SwerveDrive1.Set(0.0);
                 m_SwerveDrive2.Set(0.0);
@@ -157,12 +165,12 @@ void Robot::R2Jesu_FullAuto()
     }
 
     //5
-    if (fullAuto4 && (fullAuto5 == false) && (m_encArm.GetAbsolutePosition() > armSetPoint - .05) 
+    if (fullAuto4 && (fullAuto5 == false) && (m_encArm.GetAbsolutePosition() > (armSetPoint - .05)) 
     &&  (m_encArm.GetAbsolutePosition() < armSetPoint + .05))
     {
         if ((stringDude.GetVoltage() > 2.4))
         {
-        chewyMotor.Set(-0.6);
+        chewyMotor.Set(-0.8);
         }
         else
         {

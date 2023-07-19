@@ -1,5 +1,5 @@
 #include "Robot.h"
-bool localAlign;
+//bool localAlign;
 
 bool Robot::R2Jesu_Align(double targetYaw)
 {
@@ -21,7 +21,7 @@ bool Robot::R2Jesu_Align(double targetYaw)
         frc::SmartDashboard::PutNumber("aTurn2PidOutput", aTurn2PidOutput);
     }
     //if (((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5)) && !((ahrs->GetYaw() > -177.0) && (ahrs->GetYaw() < 177.0)))
-    if (((limelight_Table->GetNumber("tx",0.0) < -1.5) || (limelight_Table->GetNumber("tx",0.0) > 1.5)) && !(abs(ahrs->GetYaw()) < (targetYaw - 3) || abs(ahrs->GetYaw()) > (targetYaw + 3)))
+    if (((limelight_Table->GetNumber("tx",0.0) < -2.0) || (limelight_Table->GetNumber("tx",0.0) > 2.0)) && !(abs(ahrs->GetYaw()) < (targetYaw - 3) || abs(ahrs->GetYaw()) > (targetYaw + 3)))
     {
         aprilError = limelight_Table->GetNumber("tx",0.0);
         aprilCorrection = m_alignController.Calculate(aprilError, 0.0);

@@ -59,9 +59,6 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 { 
-  if (armX == 0) {
-    fullSpeed = .2 + (.5 * m_Drivestick.GetL2Axis());
-  }  
   frc::SmartDashboard::PutNumber("encoder x", m_DriveEncoder1.GetPosition());
   R2Jesu_Limelight();
   frc::SmartDashboard::PutNumber("Pressure voltage", pressureDude.GetVoltage());
@@ -171,7 +168,7 @@ void Robot::RobotPeriodic()
  * make sure to add them to the chooser code above as well.
  */
 void Robot::AutonomousInit() {
-
+  fullSpeed = 0.5;
   fullAuto1 = false;
   fullAuto2 = false;
   fullAuto2_5 = false;
@@ -216,12 +213,12 @@ void Robot::AutonomousInit() {
   if ((m_gridSelected == 1.0) || (m_gridSelected == 2.0) || (m_gridSelected == 3.0))
   {
     autoAprilDistance = 41.0;
-    autoArmSet = 0.3;
+    autoArmSet = 0.35;
     initialBackDistance = -0.0;
   } else
   {
     autoAprilDistance = 25.0;
-    autoArmSet = 0.34;
+    autoArmSet = 0.35;
     initialBackDistance = -12.0;
   }
   
@@ -251,7 +248,6 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopInit() 
 {
-
   armSetPoint = 0.91;
   inputAngle = 0.0;
   speedChoice = 0.0;
@@ -286,7 +282,9 @@ void Robot::TeleopInit()
 
 void Robot::TeleopPeriodic() 
 {
-  
+  if (armX < 2) {
+    fullSpeed = .2 + (.5 * m_Drivestick.GetL2Axis());
+  }  
   R2Jesu_Drive(m_Drivestick.GetR2Axis(), m_Drivestick.GetRightY() * -1.0, m_Drivestick.GetLeftX());
   // triangle is y
   if (m_Drivestick.GetTriangleButton())
